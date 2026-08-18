@@ -1966,13 +1966,17 @@ function showDashboard(){
   const p=progress();
   const main=document.getElementById('main');
   main.innerHTML=`
-    <div class="hero">
-      <h1>Курс «Я говорю!»</h1>
-      <p>Авторский курс Евгения Недорезова по ораторскому мастерству, технике речи и коммуникации. ${trackable.length} занятий в 7 блоках: от самопрезентации до публичных выступлений.</p>
-      <div style="margin-top:16px"><button class="alink web" onclick="showAbout()"><span class="d">👤</span> Об авторе курса</button></div>
-      <div class="bar"><i style="width:${p.pct}%"></i></div>
-      <div class="pmeta"><span>Пройдено ${p.d} из ${p.t} занятий</span><span>${p.pct}%</span></div>
-    </div>
+  <div class="hero">
+  <h1>Курс «Я говорю!»</h1>
+  <p>Авторский курс Евгения Недорезова по ораторскому мастерству, технике речи и коммуникации. ${trackable.length} занятий в 7 блоках: от самопрезентации до публичных выступлений.</p>
+  <div style="margin:12px 0 16px;padding:10px 16px;background:#fef3e0;border-left:4px solid var(--acc);border-radius:8px;font-size:14px;color:#6b4f1a;">
+    🔒 <strong>Важно:</strong> Для просмотра видео необходимо быть авторизованным 
+    на своей странице <strong>ВКонтакте</strong>. Видео доступны только ученикам курса.
+  </div>
+  <div style="margin-top:12px"><button class="alink web" onclick="showAbout()"><span class="d">👤</span> Об авторе курса</button></div>
+  <div class="bar"><i style="width:${p.pct}%"></i></div>
+  <div class="pmeta"><span>Пройдено ${p.d} из ${p.t} занятий</span><span>${p.pct}%</span></div>
+</div>
     <div class="grid">
       ${MODULES.map(m=>{const mp=modProgress(m.n);
         const meta = m.n===7? `${m.lessons.length} материалов` : `${m.lessons.length} занятий · ${mp.pct}%`;
