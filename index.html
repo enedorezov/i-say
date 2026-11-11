@@ -1907,24 +1907,31 @@ function saveDone(){ STORE.set('yag_done',JSON.stringify(DONE)); }
 function progress(){ const t=trackable.length; const d=trackable.filter(l=>DONE[l.id]).length; return {d,t,pct:t?Math.round(d/t*100):0}; }
 function modProgress(n){ const ls=MODULES.find(m=>m.n===n).lessons.filter(l=>!l.material); const d=ls.filter(l=>DONE[l.id]).length; return {d,t:ls.length,pct:ls.length?Math.round(d/ls.length*100):0}; }
 
-/* ===================== ПОЛЬЗОВАТЕЛИ (логины и пароли) =====================
-   Здесь задаются ученики, у которых есть доступ к курсу.
-   Чтобы изменить пароль или добавить ученика — отредактируйте этот список.
-   ВНИМАНИЕ: это «мягкая» защита для прототипа (пароли хранятся в файле).
-   Для настоящей безопасности нужна авторизация на сервере (см. инструкцию).        */
+/* ===================== ПОЛЬЗОВАТЕЛИ (логины и хеши паролей) =====================
+   В файле хранятся не пароли, а их SHA-256 хеши. Пароль по хешу не восстановить.
+   Чтобы добавить ученика или сменить пароль: откройте консоль браузера (F12)
+   на этой странице и выполните  await hashPass("новый-пароль")  — вставьте результат в hash.
+   Это защита от случайного взгляда в код, а не от взлома: для настоящей
+   безопасности нужна проверка на сервере.                                            */
 const USERS = {
-  "eugene.nedorezov@ya.ru": { pass:"Evgenij-7421", name:"Евгений" },
-  "katerina_matyash@gmail.com":  { pass:"katerina_matyash-3856",   name:"Катерина" },
-  "decius620@yandex.ru":    { pass:"Decius-9203",  name:"Decius" }
+  "eugene.nedorezov@ya.ru": { hash:"8eceae2ab9823d3c419fee10042f1c17ace1c600f8a891ba2f6176d852dc650e", name:"Евгений" },
+  "katerina_matyash@gmail.com": { hash:"214fe57ad49feffbe68bb478ceb4464092fe1d260a549432ce07416cd538fd65", name:"Катерина" },
+  "decius620@yandex.ru": { hash:"298f1a55846dbc7a3b570ff1c52a37f535d12e7bfe75b46e08012ea208ef82e7", name:"Decius" }
 };
 
 /* ===================== LOGIN ===================== */
-function doLogin(){
+async function hashPass(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function doLogin(){
   const email=document.getElementById('email').value.trim().toLowerCase();
   const pass=document.getElementById('pass').value;
   const err=document.getElementById('loginErr');
   const u=USERS[email];
-  if(!u || u.pass!==pass){
+  let ok=false;
+  if(u){ try{ ok=(await hashPass(pass))===u.hash; }catch(e){ ok=false; } }
+  if(!ok){
     if(err) err.classList.remove('hidden');
     return;
   }
